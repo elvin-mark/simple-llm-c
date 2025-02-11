@@ -33,6 +33,24 @@ Tensor* create_tensor(int dim, int* shape){
     return m;
 }
 
+Tensor *create_tensor2(char *shape_string){
+    int *shape = NULL;
+    int dim = 0;
+    Tensor *o;
+    char buffer[256] = {};
+    strncpy(buffer, shape_string, sizeof(buffer));
+    char *token = strtok(buffer, " ");
+    while(token){
+        dim++;
+        shape = realloc(shape, sizeof(int) * dim);
+        shape[dim - 1] = atoi(token);
+        token = strtok(NULL, " ");
+    }
+    o = create_tensor(dim, shape);
+    free(shape);
+    return o;
+}
+
 void free_tensor(Tensor *m){
     free(m->data);
     free(m->shape);
@@ -86,6 +104,14 @@ int get_pos(int dim, int *indices, int *stride){
     for(int i = 0; i<dim ; i++)
         s += stride[i] * indices[i];
     return s;
+}
+
+void transpose_tensor(Tensor *m, int *order){
+    int new_stride[m->dim] = {};
+    for(int i=0; i<m->dim; i++)
+        new_stride[i] = m->stride[order[i]];
+    for(int i=0; i<m->dim; i++)
+        m->stride[i] = new_stride[i];
 }
 
 int* get_max_shape(int dim, int *s1, int *s2){
@@ -247,4 +273,10 @@ Tensor *einsum2(char *indices_rule, Tensor *m1, Tensor *m2){
     free(idxs);
 
     return o;
+}
+
+Tensor *matmul(Tensor *m1, Tensor *m2){
+    assert(m1->dim == m2->dim, "tensor has to have dimension 2 to use matmul");
+    assert(m1->shape[1] == m2->shape[0], "shape of tensors no appropiate for matmul");
+    return einsum2("ij jk ik", m1, m2);
 }

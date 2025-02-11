@@ -9,6 +9,13 @@ void test_tensor_creation(){
     free_tensor(m);
 }
 
+void test_tensor_creation2(){
+    Tensor *m = create_tensor2("2 3 4");
+    randomize_tensor(m);
+    print_tensor(m);
+    free_tensor(m);
+}
+
 void test_basic_tensor_operations(){
     int shape[2] = {2,3};
     Tensor *m1 = create_tensor(2,shape);
@@ -77,10 +84,40 @@ void test_einsum2(){
     free_tensor(o);
 }
 
+void test_matmul(){
+    int shape[2] = {2,2};
+    Tensor *m1 = create_tensor(2,shape);
+    Tensor *m2 = create_tensor(2,shape);
+    
+    randomize_tensor(m1);
+    randomize_tensor(m2);
+
+    for(int i=0 ; i<4; i++)
+        printf("%.2f ", m1->data[i]);
+    printf("\n");
+
+    print_tensor(m1);
+    print_tensor(m2);
+    
+    Tensor *o = matmul(m1, m2);
+    print_tensor(o);
+
+    free_tensor(m1);
+    free_tensor(m2);
+    free_tensor(o);
+}
+
+void test_transpose(){
+    
+}
+
+
 int main(){
-    test_tensor_creation();
-    test_basic_tensor_operations();
-    test_einsum();
-    test_einsum2();
+    //test_tensor_creation();
+    test_tensor_creation2();
+    //test_basic_tensor_operations();
+    //test_einsum();
+    //test_einsum2();
+    //test_matmul();
     return 0;
 }
