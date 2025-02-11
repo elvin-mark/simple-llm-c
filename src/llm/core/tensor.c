@@ -1,12 +1,12 @@
-#include "llm/core/matrix.h"
+#include "llm/core/tensor.h"
 #include "llm/utils/errors.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
 
-Matrix* create_matrix(int dim, int* shape){
-    Matrix *m = malloc(sizeof(Matrix));
+Tensor* create_tensor(int dim, int* shape){
+    Tensor *m = malloc(sizeof(Tensor));
     int *stride = malloc(sizeof(int) * dim);
     int *shape_ = malloc(sizeof(int) * dim);
     int size = 1;
@@ -33,14 +33,14 @@ Matrix* create_matrix(int dim, int* shape){
     return m;
 }
 
-void free_matrix(Matrix *m){
+void free_tensor(Tensor *m){
     free(m->data);
     free(m->shape);
     free(m->stride);
     free(m);
 }
 
-void print_matrix(Matrix *m){
+void print_tensor(Tensor *m){
     printf("Dimension: %d\n", m->dim);
     
     printf("Shape: ");
@@ -57,7 +57,7 @@ void print_matrix(Matrix *m){
     printf("\n");
 }
 
-void randomize_matrix(Matrix *m){
+void randomize_tensor(Tensor *m){
     srand(time(NULL));
     for(int i = 0;i<m->size;i++){
         m->data[i] = 1.0 * rand() / RAND_MAX;
@@ -95,14 +95,14 @@ int* get_max_shape(int dim, int *s1, int *s2){
     return new_shape; 
 }
 
-Matrix* add_matrices(Matrix *m1, Matrix *m2){
-    assert(m1->dim == m2->dim, "dimension of the matrics do not match");
+Tensor* add_tensors(Tensor *m1, Tensor *m2){
+    assert(m1->dim == m2->dim, "dimension of the tensors do not match");
     int dim = m1->dim;
     int *shape = get_max_shape(dim, m1->shape, m2->shape);
     int *indices = init_indices(dim);
     int pos1, pos2, pos;
 
-    Matrix *o = create_matrix(dim, shape);
+    Tensor *o = create_tensor(dim, shape);
 
     do{
         pos1 = get_pos(dim, indices, m1->stride);
@@ -115,14 +115,14 @@ Matrix* add_matrices(Matrix *m1, Matrix *m2){
     return o;
 }
 
-Matrix* sub_matrices(Matrix *m1, Matrix *m2){
-    assert(m1->dim == m2->dim, "dimension of the matrics do not match");
+Tensor* sub_tensors(Tensor *m1, Tensor *m2){
+    assert(m1->dim == m2->dim, "dimension of the tensors do not match");
     int dim = m1->dim;
     int *shape = get_max_shape(dim, m1->shape, m2->shape);
     int *indices = init_indices(dim);
     int pos1, pos2, pos;
 
-    Matrix *o = create_matrix(dim, shape);
+    Tensor *o = create_tensor(dim, shape);
 
     do{
         pos1 = get_pos(dim, indices, m1->stride);
@@ -135,14 +135,14 @@ Matrix* sub_matrices(Matrix *m1, Matrix *m2){
     return o;
 }
 
-Matrix* mul_matrices(Matrix *m1, Matrix *m2){
-    assert(m1->dim == m2->dim, "dimension of the matrics do not match");
+Tensor* mul_tensors(Tensor *m1, Tensor *m2){
+    assert(m1->dim == m2->dim, "dimension of the tensors do not match");
     int dim = m1->dim;
     int *shape = get_max_shape(dim, m1->shape, m2->shape);
     int *indices = init_indices(dim);
     int pos1, pos2, pos;
 
-    Matrix *o = create_matrix(dim, shape);
+    Tensor *o = create_tensor(dim, shape);
 
     do{
         pos1 = get_pos(dim, indices, m1->stride);
@@ -155,14 +155,14 @@ Matrix* mul_matrices(Matrix *m1, Matrix *m2){
     return o;
 }
 
-Matrix* div_matrices(Matrix *m1, Matrix *m2){
-    assert(m1->dim == m2->dim, "dimension of the matrics do not match");
+Tensor* div_tensors(Tensor *m1, Tensor *m2){
+    assert(m1->dim == m2->dim, "dimension of the tensors do not match");
     int dim = m1->dim;
     int *shape = get_max_shape(dim, m1->shape, m2->shape);
     int *indices = init_indices(dim);
     int pos1, pos2, pos;
 
-    Matrix *o = create_matrix(dim, shape);
+    Tensor *o = create_tensor(dim, shape);
 
     do{
         pos1 = get_pos(dim, indices, m1->stride);
@@ -182,7 +182,7 @@ int get_pos_from_running_indices(int* running_indices, int dim, int *idxs, int *
    return s; 
 }
 
-Matrix *einsum(int num_idx, int *idxs1, Matrix *m1, int *idxs2, Matrix *m2, int dim, int *idxs){
+Tensor *einsum(int num_idx, int *idxs1, Tensor *m1, int *idxs2, Tensor *m2, int dim, int *idxs){
     int *running_indices = init_indices(num_idx);
     int *running_shape = malloc(sizeof(int) * num_idx);
     int *shape = malloc(sizeof(int) * dim);
@@ -196,7 +196,7 @@ Matrix *einsum(int num_idx, int *idxs1, Matrix *m1, int *idxs2, Matrix *m2, int 
     for(int i=0; i<dim; i++)
         shape[i] = running_shape[idxs[i]];
 
-    Matrix *o = create_matrix(dim, shape);
+    Tensor *o = create_tensor(dim, shape);
     
     do{
         pos1 = get_pos_from_running_indices(running_indices, m1->dim, idxs1, m1->stride);
@@ -210,10 +210,10 @@ Matrix *einsum(int num_idx, int *idxs1, Matrix *m1, int *idxs2, Matrix *m2, int 
     return o;
 }
 
-Matrix *einsum2(char *indices_rule, Matrix *m1, Matrix *m2){
+Tensor *einsum2(char *indices_rule, Tensor *m1, Tensor *m2){
     int *idxs1, *idxs2, *idxs;
     int num_idx=-1, dim;
-    Matrix *o;
+    Tensor *o;
     int idx_map[256] = {0};
     int i;
 
