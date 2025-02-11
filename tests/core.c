@@ -141,6 +141,39 @@ void test_apply_fn(){
     free_tensor(o);
 }
 
+void test_sum(){
+    Tensor *o = create_tensor2("2 2");
+    randomize_tensor(o);
+    print_tensor(o);
+    Tensor *m = sum(o, 1);
+    print_tensor(m);
+
+    free_tensor(m);
+    free_tensor(o);
+}
+
+void test_mean(){
+    Tensor *o = create_tensor2("2 2");
+    randomize_tensor(o);
+    print_tensor(o);
+    Tensor *m = mean(o, 1);
+    print_tensor(m);
+
+    free_tensor(m);
+    free_tensor(o);
+}
+
+void test_var(){
+    Tensor *o = create_tensor2("2 2");
+    randomize_tensor(o);
+    print_tensor(o);
+    Tensor *m = var(o, 1);
+    print_tensor(m);
+
+    free_tensor(m);
+    free_tensor(o);
+}
+
 int main(){
     //test_tensor_creation();
     //test_tensor_creation2();
@@ -149,6 +182,9 @@ int main(){
     //test_einsum2();
     //test_matmul();
     //test_transpose();
-    test_apply_fn();
+    //test_apply_fn();
+    //test_sum();
+    //test_mean();
+    test_var();
     return 0;
 }

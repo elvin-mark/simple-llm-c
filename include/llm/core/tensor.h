@@ -34,5 +34,9 @@ Tensor *einsum2(char *idxs, Tensor *m1, Tensor *m2); // Wrapper over einsum for 
 
 Tensor *matmul(Tensor *m1, Tensor *m2);
 Tensor *apply_fn_to_tensor(Tensor *m, float (*fn)(float));
+
+Tensor *sum(Tensor *m, int index);
+Tensor *mean(Tensor *m, int index);
+Tensor *var(Tensor *m, int index);
 #endif
 
