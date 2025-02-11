@@ -126,6 +126,20 @@ void test_transpose(){
     free_tensor(o);
 }
 
+float pow2(float x){
+    return x * x;
+}
+void test_apply_fn(){
+    Tensor *m = create_tensor2("2 2");
+    randomize_tensor(m);
+    Tensor *o = apply_fn_to_tensor(m, pow2);
+
+    print_tensor(m);
+    print_tensor(o);
+
+    free_tensor(m);
+    free_tensor(o);
+}
 
 int main(){
     //test_tensor_creation();
@@ -134,6 +148,7 @@ int main(){
     //test_einsum();
     //test_einsum2();
     //test_matmul();
-    test_transpose();
+    //test_transpose();
+    test_apply_fn();
     return 0;
 }

@@ -8,3 +8,6 @@ objs: clean
 test-core: objs
 	cd build && $(CC) -I$(INCLUDE) -c ../tests/core.c
 	cd build && $(CC) *.o -o test-core
+test-nn: objs
+	cd build && $(CC) -I$(INCLUDE) -c ../tests/nn.c
+	cd build && $(CC) *.o -o test-nn -lm

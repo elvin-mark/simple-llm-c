@@ -33,5 +33,6 @@ Tensor *einsum(int num_idx, int *idxs1, Tensor *m1, int *idxs2, Tensor *m2, int 
 Tensor *einsum2(char *idxs, Tensor *m1, Tensor *m2); // Wrapper over einsum for easy calling
 
 Tensor *matmul(Tensor *m1, Tensor *m2);
+Tensor *apply_fn_to_tensor(Tensor *m, float (*fn)(float));
 #endif
 

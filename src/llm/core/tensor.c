@@ -52,6 +52,7 @@ Tensor *create_tensor2(char *shape_string){
 }
 
 void free_tensor(Tensor *m){
+    if(m == NULL) return;
     free(m->data);
     free(m->shape);
     free(m->stride);
@@ -76,6 +77,7 @@ void print_tensor(Tensor *m){
 }
 
 void randomize_tensor(Tensor *m){
+    if(m == NULL) return;
     srand(time(NULL));
     for(int i = 0;i<m->size;i++){
         m->data[i] = 1.0 * rand() / RAND_MAX;
@@ -286,4 +288,11 @@ Tensor *matmul(Tensor *m1, Tensor *m2){
     assert(m1->dim == m2->dim, "tensor has to have dimension 2 to use matmul");
     assert(m1->shape[1] == m2->shape[0], "shape of tensors no appropiate for matmul");
     return einsum2("ij jk ik", m1, m2);
+}
+
+Tensor* apply_fn_to_tensor(Tensor *m, float (*fn)(float)){
+    Tensor *o = create_tensor(m->dim, m->shape);
+    for(int i = 0; i<m->dim; i++)
+        o->data[i] = fn(m->data[i]);
+    return o;
 }
