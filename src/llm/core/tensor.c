@@ -82,6 +82,13 @@ void randomize_tensor(Tensor *m){
     }
 }
 
+Tensor* clone_tensor(Tensor *m){
+    Tensor *o = create_tensor(m->dim, m->shape);
+    for(int i = 0;i<m->size;i++)
+        o->data[i] = m->data[i];
+    return o;
+}
+
 int* init_indices(int dim){
     int* indices = malloc(sizeof(dim));
     for(int i = 0;i<dim;i++)

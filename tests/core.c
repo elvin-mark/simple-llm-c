@@ -108,16 +108,32 @@ void test_matmul(){
 }
 
 void test_transpose(){
-    
+    int new_order[2] = {1, 0};
+    Tensor *m = create_tensor2("2 2");
+
+    randomize_tensor(m);
+
+    Tensor *mT = clone_tensor(m);
+    transpose_tensor(mT, new_order);
+    Tensor *o = matmul(m, mT);
+
+    print_tensor(m);
+    print_tensor(mT);
+    print_tensor(o);
+
+    free_tensor(m);
+    free_tensor(mT);
+    free_tensor(o);
 }
 
 
 int main(){
     //test_tensor_creation();
-    test_tensor_creation2();
+    //test_tensor_creation2();
     //test_basic_tensor_operations();
     //test_einsum();
     //test_einsum2();
     //test_matmul();
+    test_transpose();
     return 0;
 }
