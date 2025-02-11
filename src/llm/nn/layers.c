@@ -23,3 +23,10 @@ Tensor* relu_layer(Tensor *m){
     return apply_fn_to_tensor(m, relu);
 }
 
+Tensor* silu_layer(Tensor *m){
+    return apply_fn_to_tensor(m, silu);
+}
+
+Tensor* gelu_layer(Tensor *m){
+    return apply_fn_to_tensor(m, gelu);
+}

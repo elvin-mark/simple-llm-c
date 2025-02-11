@@ -7,5 +7,7 @@ Tensor* linear_layer(Tensor *m, Tensor *w, Tensor *b);
 Tensor* sigmoid_layer(Tensor *m);
 Tensor* tanh_layer(Tensor *m);
 Tensor* relu_layer(Tensor *m);
+Tensor* gelu_layer(Tensor *m);
+Tensor* silu_layer(Tensor *m);
 
 #endif
