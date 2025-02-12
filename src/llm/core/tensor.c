@@ -6,6 +6,7 @@
 #include <string.h>
 
 #define pow2(x) ((x) * (x))
+#define max(x,y) (x>y?x:y)
 
 Tensor* create_tensor(int dim, int* shape){
     Tensor *m = malloc(sizeof(Tensor));
@@ -295,12 +296,12 @@ Tensor *matmul(Tensor *m1, Tensor *m2){
 
 Tensor* apply_fn_to_tensor(Tensor *m, float (*fn)(float)){
     Tensor *o = create_tensor(m->dim, m->shape);
-    for(int i = 0; i<m->dim; i++)
+    for(int i = 0; i<m->size; i++)
         o->data[i] = fn(m->data[i]);
     return o;
 }
 
-Tensor* sum(Tensor *m, int index){
+Tensor* tensor_sum(Tensor *m, int index){
     assert(index < m->dim, "index is out of bounds");
     int *new_shape = malloc(sizeof(int) * m->dim);
     Tensor *o;
@@ -325,15 +326,15 @@ Tensor* sum(Tensor *m, int index){
     return o;
 }
 
-Tensor* mean(Tensor *m, int index){
-    Tensor *o = sum(m, index);
+Tensor* tensor_mean(Tensor *m, int index){
+    Tensor *o = tensor_sum(m, index);
     for(int i=0; i<o->size; i++)
         o->data[i] /= m->shape[index];
     return o;
 }
 
-Tensor *var(Tensor *m, int index){
-    Tensor *o1 = mean(m, index);
+Tensor *tensor_var(Tensor *m, int index){
+    Tensor *o1 = tensor_mean(m, index);
     int *new_shape = malloc(sizeof(int) * m->dim);
     Tensor *o;
     int *indices;
@@ -357,3 +358,27 @@ Tensor *var(Tensor *m, int index){
     free(o1);
     return o;
 }
+
+Tensor *tensor_max(Tensor *m, int index){
+    int *new_shape = malloc(sizeof(int) * m->dim);
+    Tensor *o;
+    int *indices;
+    int tmp, pos1, pos;
+    
+    for(int i=0; i<m->dim; i++)
+        new_shape[i] = m->shape[i];
+    new_shape[index] = 1;
+
+    o = create_tensor(m->dim, new_shape);
+    indices = init_indices(m->dim);
+
+    do{
+        pos1 = get_pos(m->dim, indices, m->stride);
+        pos = get_pos(o->dim, indices, o->stride);
+        o->data[pos] = max(m->data[pos1], o->data[pos]);
+    }while(!increase_indices(m->dim, indices, m->shape));
+
+    free(new_shape);
+    free(indices);
+    return o;
+}    

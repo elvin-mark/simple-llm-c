@@ -141,37 +141,50 @@ void test_apply_fn(){
     free_tensor(o);
 }
 
-void test_sum(){
+void test_tensor_sum(){
     Tensor *o = create_tensor2("2 2");
     randomize_tensor(o);
     print_tensor(o);
-    Tensor *m = sum(o, 1);
+    Tensor *m = tensor_sum(o, 1);
     print_tensor(m);
 
     free_tensor(m);
     free_tensor(o);
 }
 
-void test_mean(){
+void test_tensor_mean(){
     Tensor *o = create_tensor2("2 2");
     randomize_tensor(o);
     print_tensor(o);
-    Tensor *m = mean(o, 1);
+    Tensor *m = tensor_mean(o, 1);
     print_tensor(m);
 
     free_tensor(m);
     free_tensor(o);
 }
 
-void test_var(){
+void test_tensor_var(){
     Tensor *o = create_tensor2("2 2");
     randomize_tensor(o);
     print_tensor(o);
-    Tensor *m = var(o, 1);
+    Tensor *m = tensor_var(o, 1);
     print_tensor(m);
 
     free_tensor(m);
     free_tensor(o);
+}
+
+void test_tensor_max(){
+    Tensor *o = create_tensor2("2 4 6");
+    randomize_tensor(o);
+
+    print_tensor(o);
+
+    Tensor *m = tensor_max(o, 2);
+    print_tensor(m);
+
+    free_tensor(o);
+    free_tensor(m);
 }
 
 int main(){
@@ -183,8 +196,9 @@ int main(){
     //test_matmul();
     //test_transpose();
     //test_apply_fn();
-    //test_sum();
-    //test_mean();
-    test_var();
+    //test_tensor_sum();
+    //test_tensor_mean();
+    //test_tensor_var();
+    test_tensor_max();
     return 0;
 }

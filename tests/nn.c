@@ -2,6 +2,7 @@
 #include "llm/nn/layers.h"
 #include "llm/nn/blocks.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 void test_ffn(){
     Tensor *x = create_tensor2("2 5");
@@ -28,6 +29,52 @@ void test_ffn(){
     free_tensor(b2);
 }
 
+void test_softmax_layer(){
+    Tensor *o = create_tensor2("2 2");
+    randomize_tensor(o);
+    print_tensor(o);
+
+    Tensor *m = softmax_layer(o, 1);
+    print_tensor(m);
+
+    free_tensor(o);
+    free_tensor(m);
+}
+
+void test_rms_norm_layer(){
+    Tensor *o = create_tensor2("2 2");
+    randomize_tensor(o);
+    print_tensor(o);
+
+    Tensor *m = rms_norm_layer(o, 1);
+    print_tensor(m);
+
+    free_tensor(o);
+    free_tensor(m);
+}
+
+void test_layer_norm_layer(){
+    Tensor *o = create_tensor2("2 2");
+    Tensor *g = create_tensor2("1 2");
+    Tensor *b = create_tensor2("1 2");
+
+    randomize_tensor(o);
+    randomize_tensor(g);
+    randomize_tensor(b);
+
+    print_tensor(o);
+
+    Tensor *m = layer_norm_layer(o, 1, g, b);
+    print_tensor(m);
+
+    free_tensor(o);
+    free_tensor(m);
+    free_tensor(g);
+    free_tensor(b);
+}
 int main(){
-    test_ffn();
+    //test_ffn();
+    //test_softmax_layer();
+    //test_rms_norm_layer();
+    test_layer_norm_layer();
 }
