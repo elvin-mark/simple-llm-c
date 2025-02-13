@@ -22,6 +22,7 @@ int  get_pos(int dim, int *indices, int *stride);
 int* get_max_shape(int dim, int *s1, int *s2);
 int get_pos_from_running_indices(int* running_indices, int dim, int *idxs, int *stride);
 
+void reshape_tensor(Tensor *m, int dim, int *shape);
 void transpose_tensor(Tensor *m, int *order); 
 
 Tensor* add_tensors(Tensor *m1, Tensor *m2);

@@ -118,6 +118,34 @@ int get_pos(int dim, int *indices, int *stride){
     return s;
 }
 
+void reshape_tensor(Tensor *m, int dim, int *shape){
+    int new_size = 1;
+    int *new_shape = malloc(sizeof(int) * dim);
+    int *new_stride = malloc(sizeof(int) * dim);
+    int acc = 1;
+
+    for(int i=0; i<dim; i++){
+        new_shape[i] = shape[i];
+        new_size *= shape[i];
+    }
+    assert(new_size == m->size, "new data size should match the tensor's data size"); 
+
+    for(int i=dim-1; i>=0; i--){
+        new_stride[i] = acc;
+        acc *= new_shape[i];
+    }
+    
+    free(m->shape);
+    m->shape = new_shape;
+
+    free(m->stride);
+    m->stride = new_stride;
+
+    m->dim = dim;
+    m->size = new_size;
+
+}
+
 void transpose_tensor(Tensor *m, int *order){
     int *new_stride = malloc(sizeof(int) * m->dim); 
     for(int i=0; i<m->dim; i++)

@@ -2,6 +2,7 @@
 #include "llm/nn/blocks.h"
 #include "llm/nn/layers.h"
 #include "llm/utils/errors.h"
+#include <stdlib.h>
 #include <math.h>
 
 Tensor *ffn(Tensor *m, Tensor *w1, Tensor *b1, Tensor *w2, Tensor *b2, Tensor* (*act_fn)(Tensor*)){
@@ -39,3 +40,34 @@ Tensor *attention(Tensor *q, Tensor *k, Tensor *v, Tensor *mask){
 
     return o_;
 }
+
+Tensor *mha(Tensor *x, Tensor *q_w, Tensor *q_b, Tensor *k_w, Tensor *k_b, Tensor *v_w, Tensor *v_b, Tensor *proj_w, Tensor *proj_b, int n_head, int mask_enabled){
+
+    Tensor *q = linear_layer(x, q_w, q_b);
+    Tensor *k = linear_layer(x, k_w, k_b);
+    Tensor *v = linear_layer(x, v_w, v_b);
+    
+    int *new_shape = malloc(sizeof(int) * 3);
+    new_shape[0] = x->shape[0];
+    new_shape[1] = x->shape[1] / n_head;
+    new_shape[2] = n_head;
+
+    reshape_tensor(q, 3, new_shape);
+    reshape_tensor(k, 3, new_shape);
+    reshape_tensor(v, 3, new_shape);
+    
+    Tensor *o1_ = attention(q, k, v, NULL);
+    new_shape[1] = x->shape[1];
+    reshape_tensor(o1_, 2, new_shape);
+
+    Tensor *o = linear_layer(o1_, proj_w, proj_b);
+    
+    free(new_shape);
+    free_tensor(q);
+    free_tensor(k);
+    free_tensor(v);
+    free_tensor(o1_);
+
+    return o;
+}
+

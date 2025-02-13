@@ -96,10 +96,38 @@ void test_attention(){
     free_tensor(o);
 }
 
+void test_mha(){
+
+    Tensor *q = create_tensor2("192 192");
+    Tensor *k = create_tensor2("192 192");
+    Tensor *v = create_tensor2("192 192");
+    Tensor *p = create_tensor2("192 192");
+
+    Tensor *x = create_tensor2("5 192");
+    
+    randomize_tensor(q);
+    randomize_tensor(k);
+    randomize_tensor(v);
+    randomize_tensor(p);
+    randomize_tensor(x);
+
+    Tensor *o = mha(x,q, NULL, k, NULL, v, NULL, p, NULL, 12, 0);
+    
+    print_tensor(o);
+
+    free_tensor(q);
+    free_tensor(k);
+    free_tensor(v);
+    free_tensor(p);
+    free_tensor(x);
+    free_tensor(o);
+}
+
 int main(){
     //test_ffn();
     //test_softmax_layer();
     //test_rms_norm_layer();
     //test_layer_norm_layer();
-    test_attention();
+    //test_attention();
+    test_mha();
 }
