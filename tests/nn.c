@@ -72,9 +72,34 @@ void test_layer_norm_layer(){
     free_tensor(g);
     free_tensor(b);
 }
+
+void test_attention(){
+    Tensor *q = create_tensor2("5 16 12");
+    Tensor *k = create_tensor2("5 16 12");
+    Tensor *v = create_tensor2("5 16 12");
+
+    randomize_tensor(q);
+    randomize_tensor(k);
+    randomize_tensor(v);
+
+    print_tensor(q);
+    print_tensor(k);
+    print_tensor(v);
+
+    Tensor *o = attention(q, k ,v, NULL);
+
+    print_tensor(o);
+
+    free_tensor(q);
+    free_tensor(k);
+    free_tensor(v);
+    free_tensor(o);
+}
+
 int main(){
     //test_ffn();
     //test_softmax_layer();
     //test_rms_norm_layer();
-    test_layer_norm_layer();
+    //test_layer_norm_layer();
+    test_attention();
 }
