@@ -87,6 +87,20 @@ void randomize_tensor(Tensor *m){
     }
 }
 
+Tensor *tri_matrix(int N){
+    int dim=2;
+    int *shape = malloc(sizeof(int)*dim);
+    shape[0] = N;
+    shape[1] = N;
+    Tensor *o = create_tensor(dim, shape);
+    for(int i=0; i<N; i++)
+        for(int j=0; j<=i; j++)
+            o->data[i * N + j] = 1.0;
+    
+    free(shape);
+    return o;
+}
+
 Tensor* clone_tensor(Tensor *m){
     Tensor *o = create_tensor(m->dim, m->shape);
     for(int i = 0;i<m->size;i++)
@@ -409,4 +423,19 @@ Tensor *tensor_max(Tensor *m, int index){
     free(new_shape);
     free(indices);
     return o;
-}    
+}
+
+Tensor* slice(Tensor *m, int num, int *idxs){
+    int dim = m->dim;
+    int *shape = malloc(sizeof(int) * dim);
+
+    for(int i=0; i<m->dim; i++) shape[i] = m->shape[i];
+    shape[0] = num;
+    Tensor *o = create_tensor(dim, shape);
+    int d = m->size / m->shape[0];
+    for(int i=0; i<num; i++)
+        for(int j=0; j<d;i++)
+            o->data[i*d + j] = m->data[idxs[i]*d + j];
+    free(shape);
+    return o;
+}

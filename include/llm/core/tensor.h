@@ -11,10 +11,12 @@ typedef struct Tensor{
 
 Tensor* create_tensor(int dim, int *shape);
 Tensor* create_tensor2(char *shape_string); // Wrapper over create_tensor for easy initialization. shape string should be like "2 3 4"
+
 void    free_tensor(Tensor *m);
 void    print_tensor(Tensor *m);
 void    randomize_tensor(Tensor *m);
 Tensor* clone_tensor(Tensor *m);
+Tensor* tri_matrix(int N);
 
 int* init_indices(int dim);
 int  increase_indices(int dim, int* indices, int* shape); // if indices overflow then return 1 else return 0
@@ -40,5 +42,7 @@ Tensor *tensor_sum(Tensor *m, int index);
 Tensor *tensor_mean(Tensor *m, int index);
 Tensor *tensor_var(Tensor *m, int index);
 Tensor *tensor_max(Tensor *m, int index);
+
+Tensor* slice(Tensor *m, int num, int *idxs);
 #endif
 

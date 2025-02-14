@@ -16,6 +16,12 @@ void test_tensor_creation2(){
     free_tensor(m);
 }
 
+void test_tri_matrix(){
+    Tensor *o = tri_matrix(3);
+    print_tensor(o);
+    free_tensor(o);
+}
+
 void test_basic_tensor_operations(){
     int shape[2] = {2,3};
     Tensor *m1 = create_tensor(2,shape);
@@ -190,6 +196,7 @@ void test_tensor_max(){
 int main(){
     //test_tensor_creation();
     //test_tensor_creation2();
+    test_tri_matrix();
     //test_basic_tensor_operations();
     //test_einsum();
     //test_einsum2();
@@ -199,6 +206,6 @@ int main(){
     //test_tensor_sum();
     //test_tensor_mean();
     //test_tensor_var();
-    test_tensor_max();
+    //test_tensor_max();
     return 0;
 }

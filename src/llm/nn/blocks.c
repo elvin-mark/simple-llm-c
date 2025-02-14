@@ -55,8 +55,19 @@ Tensor *mha(Tensor *x, Tensor *q_w, Tensor *q_b, Tensor *k_w, Tensor *k_b, Tenso
     reshape_tensor(q, 3, new_shape);
     reshape_tensor(k, 3, new_shape);
     reshape_tensor(v, 3, new_shape);
-    
-    Tensor *o1_ = attention(q, k, v, NULL);
+
+    Tensor *mask=NULL;
+    if(mask_enabled){
+        mask = tri_matrix(x->shape[0]);
+        new_shape[1] = x->shape[0];
+        new_shape[2] = 1;
+        reshape_tensor(mask, 3, new_shape);
+        for(int i=0; i<mask->size; i++)
+            mask->data[i] = (1.0-mask->data[i])*-1e10;
+    }
+
+    Tensor *o1_ = attention(q, k, v, mask);
+    new_shape[2] = n_head;
     new_shape[1] = x->shape[1];
     reshape_tensor(o1_, 2, new_shape);
 
@@ -67,7 +78,7 @@ Tensor *mha(Tensor *x, Tensor *q_w, Tensor *q_b, Tensor *k_w, Tensor *k_b, Tenso
     free_tensor(k);
     free_tensor(v);
     free_tensor(o1_);
-
+    if(mask_enabled) free_tensor(mask);
     return o;
 }
 
