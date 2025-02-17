@@ -1,7 +1,7 @@
 #ifndef MODELS_GPT2_H
 #define MODELS_GPT2_H
 
-#include "llm/core/tensors.h"
+#include "llm/core/tensor.h"
 
 typedef struct GPT2FFN{
     Tensor *fc_w;
@@ -35,8 +35,8 @@ typedef struct GPT2 {
     Tensor *wpe;
     int num_blocks;
     GPT2Block* blocks;
-    Tensor lnf_w;
-    Tensor lnf_b;
+    Tensor *lnf_w;
+    Tensor *lnf_b;
 } GPT2;
 
 Tensor *gpt2_transformer_block(Tensor *x, GPT2Block block, int n_head);
