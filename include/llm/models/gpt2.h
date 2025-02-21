@@ -39,8 +39,10 @@ typedef struct GPT2 {
     Tensor *lnf_b;
 } GPT2;
 
+void load_model(GPT2 gpt2, char* model_path);
+void free_model(GPT2 gpt2);
 Tensor *gpt2_transformer_block(Tensor *x, GPT2Block block, int n_head);
 Tensor *gpt2_forward(int num_inputs, int* inputs, GPT2 gpt2, int n_head);
-Tensor *gpt2_generate(int num_inputs, int *inputs, GPT2 gpt2, int n_head, int n_tokens);
+void gpt2_generate(int *num_inputs, int *inputs, GPT2 gpt2, int n_head, int n_tokens);
 
 #endif

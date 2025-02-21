@@ -26,6 +26,10 @@ test-nn: $(OBJS) | $(BUILD_DIR)
 	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/test-nn.o -c ./tests/nn.c
 	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/test-nn $(BUILD_DIR)/test-nn.o $(OBJS) -lm
 
+test-gpt2: $(OBJS) | $(BUILD_DIR)
+	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/test-gpt2.o -c ./tests/gpt2.c
+	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/test-gpt2 $(BUILD_DIR)/test-gpt2.o $(OBJS) -lm
+
 clean:
 	rm -r $(BUILD_DIR)
 
