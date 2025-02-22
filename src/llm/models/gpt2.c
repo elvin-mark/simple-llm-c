@@ -1,10 +1,45 @@
 #include "llm/models/gpt2.h"
+#include "llm/core/tensor.h"
 #include "llm/nn/blocks.h"
 #include "llm/nn/layers.h"
+#include <endian.h>
 #include <stdlib.h>
 
 void load_model(GPT2Config config, GPT2 gpt2, char *model_path) {
   // TODO
+  int shape1[2] = {config.vocab_size, config.hidden_dim};
+  int shape2[2] = {config.n_ctx, config.hidden_dim};
+  int shape3[2] = {config.hidden_dim, config.hidden_dim};
+  int shape4[2] = {1, config.hidden_dim};
+
+  gpt2.wte = create_tensor(2, shape1);
+  gpt2.wpe = create_tensor(2, shape2);
+
+  gpt2.lnf_w = create_tensor(2, shape4);
+  gpt2.lnf_b = create_tensor(2, shape4);
+
+  gpt2.num_blocks = config.num_blocks;
+  gpt2.blocks = malloc(sizeof(GPT2Block) * gpt2.num_blocks);
+  for (int i = 0; i < config.num_blocks; i++) {
+    gpt2.blocks[i].ln1_w = create_tensor(2, shape4);
+    gpt2.blocks[i].ln1_b = create_tensor(2, shape4);
+    gpt2.blocks[i].ln2_w = create_tensor(2, shape4);
+    gpt2.blocks[i].ln2_b = create_tensor(2, shape4);
+
+    gpt2.blocks[i].attn.q_w = create_tensor(2, shape3);
+    gpt2.blocks[i].attn.q_b = create_tensor(2, shape4);
+    gpt2.blocks[i].attn.k_w = create_tensor(2, shape3);
+    gpt2.blocks[i].attn.k_b = create_tensor(2, shape4);
+    gpt2.blocks[i].attn.v_w = create_tensor(2, shape3);
+    gpt2.blocks[i].attn.v_b = create_tensor(2, shape4);
+    gpt2.blocks[i].attn.proj_w = create_tensor(2, shape3);
+    gpt2.blocks[i].attn.proj_b = create_tensor(2, shape4);
+
+    gpt2.blocks[i].mlp.fc_w = create_tensor(2, shape3);
+    gpt2.blocks[i].mlp.fc_b = create_tensor(2, shape4);
+    gpt2.blocks[i].mlp.proj_w = create_tensor(2, shape3);
+    gpt2.blocks[i].mlp.proj_b = create_tensor(2, shape4);
+  }
 }
 
 void free_model(GPT2 gpt2) {

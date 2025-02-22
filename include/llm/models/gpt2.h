@@ -44,6 +44,7 @@ typedef struct GPT2Config {
   int num_head;
   int vocab_size;
   int n_ctx;
+  int num_blocks;
 } GPT2Config;
 
 void load_model(GPT2Config config, GPT2 gpt2, char *model_path);
