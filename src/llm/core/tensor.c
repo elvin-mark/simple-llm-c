@@ -29,6 +29,7 @@ Tensor *create_tensor(int dim, int *shape) {
   }
 
   m->data = malloc(sizeof(float) * size);
+  memset(m->data, 0, sizeof(float) * size);
   m->dim = dim;
   m->shape = shape_;
   m->stride = stride;
@@ -69,6 +70,11 @@ void print_tensor(Tensor *m) {
   printf("Shape: ");
   for (int i = 0; i < m->dim; i++)
     printf("%d ", m->shape[i]);
+  printf("\n");
+
+  printf("Stride: ");
+  for (int i = 0; i < m->dim; i++)
+    printf("%d ", m->stride[i]);
   printf("\n");
 
   printf("Data: ");
@@ -148,7 +154,10 @@ void reshape_tensor(Tensor *m, int dim, int *shape) {
          "new data size should match the tensor's data size");
 
   for (int i = dim - 1; i >= 0; i--) {
-    new_stride[i] = acc;
+    if (new_shape[i] == 1)
+      new_stride[i] = 0;
+    else
+      new_stride[i] = acc;
     acc *= new_shape[i];
   }
 
@@ -443,9 +452,9 @@ Tensor *slice(Tensor *m, int num, int *idxs) {
     shape[i] = m->shape[i];
   shape[0] = num;
   Tensor *o = create_tensor(dim, shape);
-  int d = m->size / m->shape[0];
+  int d = m->stride[0];
   for (int i = 0; i < num; i++)
-    for (int j = 0; j < d; i++)
+    for (int j = 0; j < d; j++)
       o->data[i * d + j] = m->data[idxs[i] * d + j];
   free(shape);
   return o;

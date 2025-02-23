@@ -3,71 +3,116 @@
 #include "llm/nn/blocks.h"
 #include "llm/nn/layers.h"
 #include <endian.h>
+#include <stdio.h>
 #include <stdlib.h>
 
-void load_model(GPT2Config config, GPT2 gpt2, char *model_path) {
-  // TODO
+GPT2 *load_model(GPT2Config config, char *model_path) {
+  GPT2 *gpt2 = malloc(sizeof(GPT2));
   int shape1[2] = {config.vocab_size, config.hidden_dim};
   int shape2[2] = {config.n_ctx, config.hidden_dim};
   int shape3[2] = {config.hidden_dim, config.hidden_dim};
   int shape4[2] = {1, config.hidden_dim};
+  int shape5[2] = {config.hidden_dim, config.fc_dim};
+  int shape6[2] = {1, config.fc_dim};
+  int shape7[2] = {config.fc_dim, config.hidden_dim};
 
-  gpt2.wte = create_tensor(2, shape1);
-  gpt2.wpe = create_tensor(2, shape2);
+  FILE *fp = fopen(model_path, "rb");
 
-  gpt2.lnf_w = create_tensor(2, shape4);
-  gpt2.lnf_b = create_tensor(2, shape4);
+  gpt2->wte = create_tensor(2, shape1);
+  fread(gpt2->wte->data, sizeof(float), shape1[0] * shape1[1], fp);
+  gpt2->wpe = create_tensor(2, shape2);
+  fread(gpt2->wpe->data, sizeof(float), shape2[0] * shape2[1], fp);
 
-  gpt2.num_blocks = config.num_blocks;
-  gpt2.blocks = malloc(sizeof(GPT2Block) * gpt2.num_blocks);
+  gpt2->lnf_w = create_tensor(2, shape4);
+  fread(gpt2->lnf_w->data, sizeof(float), shape4[0] * shape4[1], fp);
+  gpt2->lnf_b = create_tensor(2, shape4);
+  fread(gpt2->lnf_b->data, sizeof(float), shape4[0] * shape4[1], fp);
+
+  gpt2->num_blocks = config.num_blocks;
+  gpt2->blocks = malloc(sizeof(GPT2Block) * gpt2->num_blocks);
   for (int i = 0; i < config.num_blocks; i++) {
-    gpt2.blocks[i].ln1_w = create_tensor(2, shape4);
-    gpt2.blocks[i].ln1_b = create_tensor(2, shape4);
-    gpt2.blocks[i].ln2_w = create_tensor(2, shape4);
-    gpt2.blocks[i].ln2_b = create_tensor(2, shape4);
+    gpt2->blocks[i].ln1_w = create_tensor(2, shape4);
+    fread(gpt2->blocks[i].ln1_w->data, sizeof(float), shape4[0] * shape4[1],
+          fp);
+    gpt2->blocks[i].ln1_b = create_tensor(2, shape4);
+    fread(gpt2->blocks[i].ln1_b->data, sizeof(float), shape4[0] * shape4[1],
+          fp);
+    gpt2->blocks[i].ln2_w = create_tensor(2, shape4);
+    fread(gpt2->blocks[i].ln2_w->data, sizeof(float), shape4[0] * shape4[1],
+          fp);
+    gpt2->blocks[i].ln2_b = create_tensor(2, shape4);
+    fread(gpt2->blocks[i].ln2_b->data, sizeof(float), shape4[0] * shape4[1],
+          fp);
 
-    gpt2.blocks[i].attn.q_w = create_tensor(2, shape3);
-    gpt2.blocks[i].attn.q_b = create_tensor(2, shape4);
-    gpt2.blocks[i].attn.k_w = create_tensor(2, shape3);
-    gpt2.blocks[i].attn.k_b = create_tensor(2, shape4);
-    gpt2.blocks[i].attn.v_w = create_tensor(2, shape3);
-    gpt2.blocks[i].attn.v_b = create_tensor(2, shape4);
-    gpt2.blocks[i].attn.proj_w = create_tensor(2, shape3);
-    gpt2.blocks[i].attn.proj_b = create_tensor(2, shape4);
+    gpt2->blocks[i].attn.q_w = create_tensor(2, shape3);
+    fread(gpt2->blocks[i].attn.q_w->data, sizeof(float), shape3[0] * shape3[1],
+          fp);
+    gpt2->blocks[i].attn.q_b = create_tensor(2, shape4);
+    fread(gpt2->blocks[i].attn.q_b->data, sizeof(float), shape4[0] * shape4[1],
+          fp);
+    gpt2->blocks[i].attn.k_w = create_tensor(2, shape3);
+    fread(gpt2->blocks[i].attn.k_w->data, sizeof(float), shape3[0] * shape3[1],
+          fp);
+    gpt2->blocks[i].attn.k_b = create_tensor(2, shape4);
+    fread(gpt2->blocks[i].attn.k_b->data, sizeof(float), shape4[0] * shape4[1],
+          fp);
+    gpt2->blocks[i].attn.v_w = create_tensor(2, shape3);
+    fread(gpt2->blocks[i].attn.v_w->data, sizeof(float), shape3[0] * shape3[1],
+          fp);
+    gpt2->blocks[i].attn.v_b = create_tensor(2, shape4);
+    fread(gpt2->blocks[i].attn.v_b->data, sizeof(float), shape4[0] * shape4[1],
+          fp);
+    gpt2->blocks[i].attn.proj_w = create_tensor(2, shape3);
+    fread(gpt2->blocks[i].attn.proj_w->data, sizeof(float),
+          shape3[0] * shape3[1], fp);
+    gpt2->blocks[i].attn.proj_b = create_tensor(2, shape4);
+    fread(gpt2->blocks[i].attn.proj_b->data, sizeof(float),
+          shape4[0] * shape4[1], fp);
 
-    gpt2.blocks[i].mlp.fc_w = create_tensor(2, shape3);
-    gpt2.blocks[i].mlp.fc_b = create_tensor(2, shape4);
-    gpt2.blocks[i].mlp.proj_w = create_tensor(2, shape3);
-    gpt2.blocks[i].mlp.proj_b = create_tensor(2, shape4);
+    gpt2->blocks[i].mlp.fc_w = create_tensor(2, shape5);
+    fread(gpt2->blocks[i].mlp.fc_w->data, sizeof(float), shape5[0] * shape5[1],
+          fp);
+    gpt2->blocks[i].mlp.fc_b = create_tensor(2, shape6);
+    fread(gpt2->blocks[i].mlp.fc_b->data, sizeof(float), shape6[0] * shape6[1],
+          fp);
+    gpt2->blocks[i].mlp.proj_w = create_tensor(2, shape7);
+    fread(gpt2->blocks[i].mlp.proj_w->data, sizeof(float),
+          shape7[0] * shape7[1], fp);
+    gpt2->blocks[i].mlp.proj_b = create_tensor(2, shape4);
+    fread(gpt2->blocks[i].mlp.proj_b->data, sizeof(float),
+          shape4[0] * shape4[1], fp);
   }
+
+  fclose(fp);
+  return gpt2;
 }
 
-void free_model(GPT2 gpt2) {
-  free_tensor(gpt2.wte);
-  free_tensor(gpt2.wpe);
-  for (int i = 0; i < gpt2.num_blocks; i++) {
-    free_tensor(gpt2.blocks[i].ln1_w);
-    free_tensor(gpt2.blocks[i].ln1_b);
-    free_tensor(gpt2.blocks[i].ln2_w);
-    free_tensor(gpt2.blocks[i].ln2_b);
-    free_tensor(gpt2.blocks[i].mlp.fc_w);
+void free_model(GPT2 *gpt2) {
+  free_tensor(gpt2->wte);
+  free_tensor(gpt2->wpe);
+  for (int i = 0; i < gpt2->num_blocks; i++) {
+    free_tensor(gpt2->blocks[i].ln1_w);
+    free_tensor(gpt2->blocks[i].ln1_b);
+    free_tensor(gpt2->blocks[i].ln2_w);
+    free_tensor(gpt2->blocks[i].ln2_b);
 
-    free_tensor(gpt2.blocks[i].mlp.fc_w);
-    free_tensor(gpt2.blocks[i].mlp.fc_b);
-    free_tensor(gpt2.blocks[i].mlp.proj_w);
-    free_tensor(gpt2.blocks[i].mlp.proj_b);
+    free_tensor(gpt2->blocks[i].mlp.fc_w);
+    free_tensor(gpt2->blocks[i].mlp.fc_b);
+    free_tensor(gpt2->blocks[i].mlp.proj_w);
+    free_tensor(gpt2->blocks[i].mlp.proj_b);
 
-    free_tensor(gpt2.blocks[i].attn.q_w);
-    free_tensor(gpt2.blocks[i].attn.q_b);
-    free_tensor(gpt2.blocks[i].attn.k_w);
-    free_tensor(gpt2.blocks[i].attn.k_b);
-    free_tensor(gpt2.blocks[i].attn.v_w);
-    free_tensor(gpt2.blocks[i].attn.v_b);
-    free_tensor(gpt2.blocks[i].attn.proj_w);
-    free_tensor(gpt2.blocks[i].attn.proj_b);
+    free_tensor(gpt2->blocks[i].attn.q_w);
+    free_tensor(gpt2->blocks[i].attn.q_b);
+    free_tensor(gpt2->blocks[i].attn.k_w);
+    free_tensor(gpt2->blocks[i].attn.k_b);
+    free_tensor(gpt2->blocks[i].attn.v_w);
+    free_tensor(gpt2->blocks[i].attn.v_b);
+    free_tensor(gpt2->blocks[i].attn.proj_w);
+    free_tensor(gpt2->blocks[i].attn.proj_b);
   }
-  free_tensor(gpt2.lnf_w);
-  free_tensor(gpt2.lnf_b);
+  free_tensor(gpt2->lnf_w);
+  free_tensor(gpt2->lnf_b);
+  free(gpt2);
 }
 
 Tensor *gpt2_transformer_block(Tensor *x, GPT2Block block, int n_head) {
@@ -80,7 +125,7 @@ Tensor *gpt2_transformer_block(Tensor *x, GPT2Block block, int n_head) {
   Tensor *o4_ = layer_norm_layer(o3_, 1, block.ln2_w, block.ln2_b);
   Tensor *o5_ = ffn(o4_, block.mlp.fc_w, block.mlp.fc_b, block.mlp.proj_w,
                     block.mlp.proj_b, gelu_layer);
-  Tensor *o6_ = add_tensors(o3_, o6_);
+  Tensor *o6_ = add_tensors(o3_, o5_);
 
   free_tensor(o1_);
   free_tensor(o2_);
@@ -130,8 +175,10 @@ void gpt2_generate(int *num_inputs, int *inputs, GPT2 gpt2, int n_head,
     token = 0;
     score = o->data[k * o->stride[0]];
     for (int j = 1; j < o->shape[1]; j++)
-      if (o->data[k * o->stride[0] + j] > score)
+      if (o->data[k * o->stride[0] + j] > score) {
         token = j;
+        score = o->data[k * o->stride[0] + j];
+      }
     inputs = realloc(inputs, sizeof(int) * (num_inputs_ + 1));
     inputs[num_inputs_] = token;
     num_inputs_ += 1;

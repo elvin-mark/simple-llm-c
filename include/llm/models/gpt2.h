@@ -44,11 +44,12 @@ typedef struct GPT2Config {
   int num_head;
   int vocab_size;
   int n_ctx;
+  int fc_dim;
   int num_blocks;
 } GPT2Config;
 
-void load_model(GPT2Config config, GPT2 gpt2, char *model_path);
-void free_model(GPT2 gpt2);
+GPT2 *load_model(GPT2Config config, char *model_path);
+void free_model(GPT2 *gpt2);
 Tensor *gpt2_transformer_block(Tensor *x, GPT2Block block, int n_head);
 Tensor *gpt2_forward(int num_inputs, int *inputs, GPT2 gpt2, int n_head);
 void gpt2_generate(int *num_inputs, int *inputs, GPT2 gpt2, int n_head,

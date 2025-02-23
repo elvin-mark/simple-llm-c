@@ -3,6 +3,7 @@
 #include "llm/nn/layers.h"
 #include "llm/utils/errors.h"
 #include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 Tensor *ffn(Tensor *m, Tensor *w1, Tensor *b1, Tensor *w2, Tensor *b2,
@@ -22,7 +23,7 @@ Tensor *attention(Tensor *q, Tensor *k, Tensor *v, Tensor *mask) {
   assert(q->dim == 3 && k->dim == 3 && v->dim == 3,
          "q, k and v must be of 3-dimension tensors");
   int dim = q->shape[1] * q->shape[2];
-  int scale = 1 / sqrtf(1.0 * dim);
+  float scale = 1.0 / sqrtf(1.0 * dim);
 
   Tensor *qk_ = einsum2("ijk ljk ilk", q, k);
   for (int i = 0; i < qk_->size; i++)
