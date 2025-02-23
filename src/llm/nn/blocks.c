@@ -22,10 +22,10 @@ Tensor *attention(Tensor *q, Tensor *k, Tensor *v, Tensor *mask) {
   // q, k and v are of dimmension N, dim/n_head, n_head
   assert(q->dim == 3 && k->dim == 3 && v->dim == 3,
          "q, k and v must be of 3-dimension tensors");
-  int dim = q->shape[1] * q->shape[2];
+  int dim = q->shape[1];
   float scale = 1.0 / sqrtf(1.0 * dim);
 
-  Tensor *qk_ = einsum2("ijk ljk ilk", q, k);
+  Tensor *qk_ = einsum2("ikj lkj ikl", q, k);
   for (int i = 0; i < qk_->size; i++)
     qk_->data[i] *= scale;
 
@@ -35,9 +35,8 @@ Tensor *attention(Tensor *q, Tensor *k, Tensor *v, Tensor *mask) {
     free_tensor(qk_);
     qk_ = m_;
   }
-
-  Tensor *s_ = softmax_layer(qk_, 1);
-  Tensor *o_ = einsum2("ijk jlk ilk", s_, v);
+  Tensor *s_ = softmax_layer(qk_, 2);
+  Tensor *o_ = einsum2("ikj jkl ikl", s_, v);
 
   free_tensor(qk_);
   free_tensor(s_);
@@ -55,8 +54,8 @@ Tensor *mha(Tensor *x, Tensor *q_w, Tensor *q_b, Tensor *k_w, Tensor *k_b,
 
   int *new_shape = malloc(sizeof(int) * 3);
   new_shape[0] = x->shape[0];
-  new_shape[1] = x->shape[1] / n_head;
-  new_shape[2] = n_head;
+  new_shape[1] = n_head;
+  new_shape[2] = x->shape[1] / n_head;
 
   reshape_tensor(q, 3, new_shape);
   reshape_tensor(k, 3, new_shape);
@@ -65,8 +64,8 @@ Tensor *mha(Tensor *x, Tensor *q_w, Tensor *q_b, Tensor *k_w, Tensor *k_b,
   Tensor *mask = NULL;
   if (mask_enabled) {
     mask = tri_matrix(x->shape[0]);
-    new_shape[1] = x->shape[0];
-    new_shape[2] = 1;
+    new_shape[1] = 1;
+    new_shape[2] = x->shape[0];
     reshape_tensor(mask, 3, new_shape);
     for (int i = 0; i < mask->size; i++)
       mask->data[i] = (1.0 - mask->data[i]) * -1e10;
