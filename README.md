@@ -10,3 +10,12 @@ You can build the library by running the following command
 make libtinyllm.so
 ```
 
+# Run GPT2
+
+```sh
+make test-gpt2
+```
+
+```sh
+./build/test-gpt2
+```

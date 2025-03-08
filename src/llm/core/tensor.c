@@ -1,5 +1,6 @@
 #include "llm/core/tensor.h"
 #include "llm/utils/errors.h"
+#include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,6 +8,8 @@
 
 #define pow2(x) ((x) * (x))
 #define max(x, y) (x > y ? x : y)
+
+#define BLOCK_SIZE 64
 
 Tensor *create_tensor(int dim, int *shape) {
   Tensor *m = malloc(sizeof(Tensor));
@@ -173,11 +176,18 @@ void reshape_tensor(Tensor *m, int dim, int *shape) {
 
 void transpose_tensor(Tensor *m, int *order) {
   int *new_stride = malloc(sizeof(int) * m->dim);
+  int *new_shape = malloc(sizeof(int) * m->dim);
   for (int i = 0; i < m->dim; i++)
     new_stride[i] = m->stride[order[i]];
   for (int i = 0; i < m->dim; i++)
     m->stride[i] = new_stride[i];
+  for (int i = 0; i < m->dim; i++)
+    new_shape[i] = m->shape[order[i]];
+  for (int i = 0; i < m->dim; i++)
+    m->shape[i] = new_shape[i];
+
   free(new_stride);
+  free(new_shape);
 }
 
 int *get_max_shape(int dim, int *s1, int *s2) {
@@ -349,10 +359,50 @@ Tensor *einsum2(char *indices_rule, Tensor *m1, Tensor *m2) {
 }
 
 Tensor *matmul(Tensor *m1, Tensor *m2) {
-  assert(m1->dim == m2->dim, "tensor has to have dimension 2 to use matmul");
+  assert(m1->dim == 2 && m2->dim == 2,
+         "both tensor has to have dimension 2 to use matmul");
   assert(m1->shape[1] == m2->shape[0],
          "shape of tensors no appropiate for matmul");
-  return einsum2("ij jk ik", m1, m2);
+  // Previous inefficient way (this is about 10x slower)
+  // return einsum2("ij jk ik", m1, m2);
+
+  int rows = m1->shape[0];
+  int comm = m1->shape[1];
+  int cols = m2->shape[1];
+  int strideA1 = m1->stride[0];
+  int strideA2 = m1->stride[1];
+  int strideB1 = m2->stride[0];
+  int strideB2 = m2->stride[1];
+  float *A = m1->data;
+  float *B = m2->data;
+  int *shape = malloc(sizeof(int) * 2);
+  shape[0] = rows;
+  shape[1] = cols;
+  Tensor *o = create_tensor(2, shape);
+  float *C = o->data;
+
+#pragma omp parallel
+  {
+#pragma omp for schedule(dynamic)
+    for (int i = 0; i < rows; i += BLOCK_SIZE) {
+      for (int j = 0; j < cols; j += BLOCK_SIZE) {
+        for (int k = 0; k < comm; k += BLOCK_SIZE) {
+          for (int ii = i; ii < i + BLOCK_SIZE && ii < rows; ii++) {
+            for (int jj = j; jj < j + BLOCK_SIZE && jj < cols; jj++) {
+              float sum = 0.0f;
+              for (int kk = k; kk < k + BLOCK_SIZE && kk < comm; kk++) {
+                sum += A[ii * strideA1 + kk * strideA2] *
+                       B[kk * strideB1 + jj * strideB2];
+              }
+              C[ii * cols + jj] += sum;
+            }
+          }
+        }
+      }
+    }
+  }
+  free(shape);
+  return o;
 }
 
 Tensor *apply_fn_to_tensor(Tensor *m, float (*fn)(float)) {

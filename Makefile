@@ -16,7 +16,7 @@ $(BUILD_DIR):
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
 	mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -I$(INCLUDE) -c $< -o $@
+	$(CC) $(CFLAGS) -I$(INCLUDE) -c $< -o $@ -Ofast -fopenmp -O3 -ffast-math
 
 test-core: $(OBJS) | $(BUILD_DIR)
 	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/test-core.o -c ./tests/core.c
@@ -28,7 +28,7 @@ test-nn: $(OBJS) | $(BUILD_DIR)
 
 test-gpt2: $(OBJS) | $(BUILD_DIR)
 	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/test-gpt2.o -c ./tests/gpt2.c
-	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/test-gpt2 $(BUILD_DIR)/test-gpt2.o $(OBJS) -lm
+	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/test-gpt2 $(BUILD_DIR)/test-gpt2.o $(OBJS) -lm -O3 -Ofast -fopenmp -ffast-math
 
 clean:
 	rm -r $(BUILD_DIR)
