@@ -30,6 +30,10 @@ test-gpt2: $(OBJS) | $(BUILD_DIR)
 	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/test-gpt2.o -c ./tests/gpt2.c
 	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/test-gpt2 $(BUILD_DIR)/test-gpt2.o $(OBJS) -lm -O3 -Ofast -fopenmp -ffast-math
 
+llm-server: $(OBJS) | $(BUILD_DIR)
+	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/llm-server.o -c ./server/main.c
+	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/llm-server $(BUILD_DIR)/llm-server.o $(OBJS) -lm -O3 -Ofast -fopenmp -ffast-math
+
 clean:
 	rm -r $(BUILD_DIR)
 

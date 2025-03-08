@@ -1,0 +1,30 @@
+<html>
+  <head>
+    <title>Simple Inference LLM in C</title>
+  </head>
+  <body>
+    <p id="result"></p>
+    <input id="numTokens"/>
+    <input id="box"/>
+    <button onclick="send()">Send</button>
+
+    <script src="https://unpkg.com/gpt-tokenizer@2.9.0/dist/r50k_base.js"></script>
+    <script>
+      const { encode, decode } = GPTTokenizer_r50k_base;
+      let numTokens = document.getElementById("numTokens");
+      let result = document.getElementById("result");
+      let box = document.getElementById("box");
+      function send(){
+        fetch("/",{
+          method: "POST",
+          body: "" + numTokens.value + ","+encode(""+ box.value),
+        }).then(res => {
+          return res.text();
+        }).then(res =>{
+          result.innerText = decode(eval("[" + res + "]"));
+          console.log(res)
+        })
+      }
+    </script>
+  </body>
+</html>

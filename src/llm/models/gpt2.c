@@ -165,7 +165,7 @@ Tensor *gpt2_forward(int num_inputs, int *inputs, GPT2 gpt2, int n_head) {
   return o4_;
 }
 
-void gpt2_generate(int *num_inputs, int **inputs, GPT2 gpt2, int n_head,
+void gpt2_generate(int *num_inputs, int *inputs, GPT2 gpt2, int n_head,
                    int n_tokens) {
   Tensor *o;
   int token;
@@ -174,7 +174,7 @@ void gpt2_generate(int *num_inputs, int **inputs, GPT2 gpt2, int n_head,
   int num_inputs_ = *num_inputs;
   for (int i = 0; i < n_tokens; i++) {
     k = num_inputs_ - 1;
-    o = gpt2_forward(num_inputs_, *inputs, gpt2, n_head);
+    o = gpt2_forward(num_inputs_, inputs, gpt2, n_head);
     token = 0;
     score = o->data[k * o->stride[0]];
     for (int j = 1; j < o->shape[1]; j++)
@@ -182,8 +182,7 @@ void gpt2_generate(int *num_inputs, int **inputs, GPT2 gpt2, int n_head,
         token = j;
         score = o->data[k * o->stride[0] + j];
       }
-    *inputs = realloc(*inputs, sizeof(int) * (num_inputs_ + 1));
-    (*inputs)[num_inputs_] = token;
+    inputs[num_inputs_] = token;
     num_inputs_ += 1;
     free_tensor(o);
   }
