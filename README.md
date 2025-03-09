@@ -17,5 +17,13 @@ make test-gpt2
 ```
 
 ```sh
+CFLAGS="-DORIGINAL" make clean test-gpt2 
+```
+
+```sh
+CFLAGS="-DBLAS -lblas" make clean test-gpt2 
+```
+
+```sh
 ./build/test-gpt2
 ```

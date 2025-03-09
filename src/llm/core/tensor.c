@@ -358,6 +358,49 @@ Tensor *einsum2(char *indices_rule, Tensor *m1, Tensor *m2) {
   return o;
 }
 
+#ifdef ORIGINAL
+// Previous inefficient way (this is about 10x slower)
+Tensor *matmul(Tensor *m1, Tensor *m2) {
+  assert(m1->dim == 2 && m2->dim == 2,
+         "both tensor has to have dimension 2 to use matmul");
+  assert(m1->shape[1] == m2->shape[0],
+         "shape of tensors no appropiate for matmul");
+  return einsum2("ij jk ik", m1, m2);
+}
+
+#elif defined(BLAS)
+#include <cblas.h>
+Tensor *matmul(Tensor *m1, Tensor *m2) {
+  assert(m1->dim == 2 && m2->dim == 2,
+         "both tensor has to have dimension 2 to use matmul");
+  assert(m1->shape[1] == m2->shape[0],
+         "shape of tensors no appropiate for matmul");
+
+  int strideA1 = m1->stride[0];
+  int strideA2 = m1->stride[1];
+  int strideB1 = m2->stride[0];
+  int strideB2 = m2->stride[1];
+  int AT = strideA2 != 1 && strideA2 != 0;
+  int BT = strideB2 != 1 && strideB2 != 0;
+  int rows = m1->shape[0];
+  int comm = m1->shape[1];
+  int cols = m2->shape[1];
+  float *A = m1->data;
+  float *B = m2->data;
+  int *shape = malloc(sizeof(int) * 2);
+  shape[0] = rows;
+  shape[1] = cols;
+  Tensor *o = create_tensor(2, shape);
+  float *C = o->data;
+  int m = rows, n = cols, k = comm;
+  cblas_sgemm(CblasRowMajor, AT ? CblasTrans : CblasNoTrans,
+              BT ? CblasTrans : CblasNoTrans, m, n, k, 1.0, A, AT ? m : k, B,
+              BT ? k : n, 0.0, C, n);
+  return o;
+}
+#else
+
+// Faster version of matmul without dependencies
 Tensor *matmul(Tensor *m1, Tensor *m2) {
   assert(m1->dim == 2 && m2->dim == 2,
          "both tensor has to have dimension 2 to use matmul");
@@ -404,6 +447,7 @@ Tensor *matmul(Tensor *m1, Tensor *m2) {
   free(shape);
   return o;
 }
+#endif
 
 Tensor *apply_fn_to_tensor(Tensor *m, float (*fn)(float)) {
   Tensor *o = create_tensor(m->dim, m->shape);

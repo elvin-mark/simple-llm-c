@@ -1,6 +1,6 @@
 CC=gcc
 INCLUDE=./include
-CFLAGS= -fPIC
+CFLAGS+= -Ofast -fopenmp -O3 -ffast-math -lm
 LDFLAGS= -shared
 
 BUILD_DIR=./build
@@ -16,23 +16,23 @@ $(BUILD_DIR):
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
 	mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -I$(INCLUDE) -c $< -o $@ -Ofast -fopenmp -O3 -ffast-math
+	$(CC) $(CFLAGS) -fPIC -I$(INCLUDE) -c $< -o $@
 
 test-core: $(OBJS) | $(BUILD_DIR)
 	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/test-core.o -c ./tests/core.c
-	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/test-core $(BUILD_DIR)/test-core.o $(OBJS) -lm
+	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/test-core $(BUILD_DIR)/test-core.o $(OBJS) $(CFLAGS)
 
 test-nn: $(OBJS) | $(BUILD_DIR)
 	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/test-nn.o -c ./tests/nn.c
-	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/test-nn $(BUILD_DIR)/test-nn.o $(OBJS) -lm
+	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/test-nn $(BUILD_DIR)/test-nn.o $(OBJS) $(CFLAGS)
 
 test-gpt2: $(OBJS) | $(BUILD_DIR)
 	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/test-gpt2.o -c ./tests/gpt2.c
-	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/test-gpt2 $(BUILD_DIR)/test-gpt2.o $(OBJS) -lm -O3 -Ofast -fopenmp -ffast-math
+	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/test-gpt2 $(BUILD_DIR)/test-gpt2.o $(OBJS) $(CFLAGS)
 
 llm-server: $(OBJS) | $(BUILD_DIR)
 	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/llm-server.o -c ./server/main.c
-	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/llm-server $(BUILD_DIR)/llm-server.o $(OBJS) -lm -O3 -Ofast -fopenmp -ffast-math
+	$(CC) -I$(INCLUDE) -o $(BUILD_DIR)/llm-server $(BUILD_DIR)/llm-server.o $(OBJS) $(CFLAGS)
 
 clean:
 	rm -r $(BUILD_DIR)
