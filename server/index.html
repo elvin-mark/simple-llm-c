@@ -3,27 +3,36 @@
     <title>Simple Inference LLM in C</title>
   </head>
   <body>
-    <p id="result"></p>
-    <input id="numTokens"/>
-    <input id="box"/>
+    <div>
+      <span id="sliderValue"></span>
+      <input type="range" id="slider" oninput="sliderUpdate()" min="1" max="40" value="1"/>
+    </div>
+    <textarea id="box" rows="10" cols="50"></textarea>
     <button onclick="send()">Send</button>
 
     <script src="https://unpkg.com/gpt-tokenizer@2.9.0/dist/r50k_base.js"></script>
     <script>
       const { encode, decode } = GPTTokenizer_r50k_base;
-      let numTokens = document.getElementById("numTokens");
-      let result = document.getElementById("result");
+
+      let slider = document.getElementById("slider");
+      let sliderValue = document.getElementById("sliderValue");
       let box = document.getElementById("box");
+      
       function send(){
         fetch("/",{
           method: "POST",
-          body: "" + numTokens.value + ","+encode(""+ box.value),
+          body: "" + sliderValue.innerText + ","+encode(""+ box.value),
         }).then(res => {
           return res.text();
         }).then(res =>{
-          result.innerText = decode(eval("[" + res + "]"));
+          box.value = decode(eval("[" + res + "]"));
           console.log(res)
         })
+      }
+
+      function sliderUpdate(){
+        console.log(slider.value);
+        sliderValue.innerText = slider.value;
       }
     </script>
   </body>
